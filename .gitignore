@@ -75,8 +75,8 @@ htmlcov/
 Thumbs.db
 .DS_Store
 
-# Streamlit (if keeping for admin panel)
-.streamlit/
+# Streamlit secrets (keep config.toml but ignore secrets.toml)
+.streamlit/secrets.toml
 
 # Temporary files
 *.tmp

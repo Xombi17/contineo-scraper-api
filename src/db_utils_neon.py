@@ -11,15 +11,31 @@ import os
 from typing import Dict, List, Optional, Any
 import json
 
-# Database configuration from environment variables
-NEON_PASSWORDLESS_AUTH = os.environ.get("NEON_PASSWORDLESS_AUTH", "false").lower() == "true"
-NEON_DB_HOST = os.environ.get("NEON_DB_HOST", "pg.neon.tech")
+# Try to import streamlit for secrets support
+try:
+    import streamlit as st
+    HAS_STREAMLIT = True
+except ImportError:
+    HAS_STREAMLIT = False
+
+def get_config_value(key, default=None):
+    """Get configuration value from Streamlit secrets or environment variables"""
+    if HAS_STREAMLIT:
+        try:
+            return st.secrets.get(key, os.environ.get(key, default))
+        except (AttributeError, FileNotFoundError):
+            pass
+    return os.environ.get(key, default)
+
+# Database configuration from environment variables or Streamlit secrets
+NEON_PASSWORDLESS_AUTH = get_config_value("NEON_PASSWORDLESS_AUTH", "false").lower() == "true"
+NEON_DB_HOST = get_config_value("NEON_DB_HOST", "pg.neon.tech")
 
 # Legacy password-based auth (fallback)
-NEON_DB_PASSWORD = os.environ.get("NEON_DB_PASSWORD")
-NEON_DB_URI = os.environ.get("NEON_DB_URI", "ep-spring-voice-a1yre8if-pooler.ap-southeast-1.aws.neon.tech")
-PG_DBNAME = os.environ.get("PG_DBNAME", "neondb")
-PG_USER = os.environ.get("PG_USER", "neondb_owner")
+NEON_DB_PASSWORD = get_config_value("NEON_DB_PASSWORD")
+NEON_DB_URI = get_config_value("NEON_DB_URI", "ep-spring-voice-a1yre8if-pooler.ap-southeast-1.aws.neon.tech")
+PG_DBNAME = get_config_value("PG_DBNAME", "neondb")
+PG_USER = get_config_value("PG_USER", "neondb_owner")
 
 # MCP Server configuration
 MCP_SERVER_CONFIG = {

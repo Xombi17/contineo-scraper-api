@@ -9,15 +9,37 @@ import pytz
 import os
 from typing import Dict, List, Optional
 
+# Try to import streamlit for secrets support
+try:
+    import streamlit as st
+    HAS_STREAMLIT = True
+except ImportError:
+    HAS_STREAMLIT = False
+
 # Prisma Postgres configuration
-PRISMA_DIRECT_URL = os.getenv("DIRECT_URL")
+def get_database_url():
+    """Get database URL from Streamlit secrets or environment variables"""
+    if HAS_STREAMLIT:
+        try:
+            # Try Streamlit secrets first (for Streamlit Cloud)
+            return st.secrets.get("DIRECT_URL")
+        except (AttributeError, FileNotFoundError):
+            pass
+    # Fall back to environment variable
+    return os.getenv("DIRECT_URL")
+
+PRISMA_DIRECT_URL = get_database_url()
 
 DB_NAME_FOR_MESSAGES = "Prisma Postgres (Cloud Database)"
 
 def get_db_connection():
     """Establishes a connection to Prisma Postgres database."""
     try:
-        conn = psycopg2.connect(PRISMA_DIRECT_URL, cursor_factory=RealDictCursor)
+        db_url = get_database_url()
+        if not db_url:
+            print(f"Error: DIRECT_URL not found in environment or Streamlit secrets")
+            return None
+        conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
         return conn
     except psycopg2.Error as e:
         print(f"Error connecting to {DB_NAME_FOR_MESSAGES} database: {e}")
