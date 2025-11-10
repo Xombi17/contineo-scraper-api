@@ -155,6 +155,17 @@ async def fetch_student_data(username: str, force_refresh: bool = False):
     attendance_records = web_scraper.extract_attendance_from_welcome_page(html)
     cie_marks_records = web_scraper.extract_cie_marks(html)
     
+    # Add subject names to attendance records
+    if attendance_records:
+        for record in attendance_records:
+            subject_code = record.get("subject", "")
+            record["subject_name"] = config.SUBJECT_CODE_TO_NAME_MAP.get(subject_code, subject_code)
+            # Calculate present/absent/total from percentage
+            # This is approximate since we don't have exact numbers from the scraper
+            record["present"] = int(record["percentage"])
+            record["absent"] = 100 - int(record["percentage"])
+            record["total"] = 100
+    
     # Update database
     scraped_at = datetime.now(pytz.utc)
     if cie_marks_records:
@@ -376,9 +387,119 @@ async def get_grade_predictions(username: str):
     
     return predictions
 
+# Combined Analytics Endpoint
+@app.get("/analytics/{username}")
+async def get_combined_analytics(username: str):
+    """Get all analytics data in one call"""
+    user_details = db_utils.get_user_from_db_pg(username)
+    if not user_details:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    cie_marks = db_utils.get_user_current_cie_marks_pg(user_details["id"])
+    semester_records = db_utils.get_user_semester_records_pg(user_details["id"])
+    
+    if not cie_marks:
+        raise HTTPException(status_code=404, detail="No marks data available")
+    
+    # Calculate SGPA
+    sgpa_data = cgpa_calculator.calculate_sgpa(cie_marks)
+    
+    # Get subject performance
+    performance_data = analytics.calculate_subject_performance_dashboard(cie_marks)
+    
+    # Get attendance data
+    session, html = web_scraper.login_and_get_welcome_page(
+        user_details["prn"],
+        user_details["dob_day"],
+        user_details["dob_month"],
+        user_details["dob_year"],
+        user_details["full_name"]
+    )
+    
+    attendance_records = []
+    attendance_marks_correlation = []
+    avg_attendance = 0
+    
+    if html:
+        attendance_records = web_scraper.extract_attendance_from_welcome_page(html)
+        if attendance_records:
+            avg_attendance = sum(r["percentage"] for r in attendance_records) / len(attendance_records)
+            correlation_data = analytics.calculate_attendance_marks_correlation(
+                attendance_records, cie_marks
+            )
+            # Transform to simple format for scatter plot
+            attendance_marks_correlation = [
+                {"attendance": s["attendance"], "marks": s["marks_percentage"]}
+                for s in correlation_data.get("subject_correlations", [])
+            ]
+    
+    # Predictions
+    predictions = analytics.predict_final_grades(cie_marks, semester_records)
+    
+    return {
+        "current_sgpa": sgpa_data["sgpa"],
+        "predicted_cgpa": predictions.get("predicted_cgpa", sgpa_data["sgpa"]),
+        "avg_attendance": avg_attendance,
+        "class_rank": None,  # TODO: Implement class ranking
+        "subject_performance": performance_data.get("subjects", []),
+        "attendance_marks_correlation": attendance_marks_correlation,
+        "grade_distribution": sgpa_data.get("grade_distribution", {})
+    }
+
 # Leaderboard Endpoints
+@app.get("/leaderboard")
+async def get_overall_leaderboard(limit: int = 50):
+    """Get overall leaderboard ranked by SGPA"""
+    try:
+        import db_utils_prisma
+        import psycopg2.extras
+        
+        # Get all users with their SGPA
+        conn = db_utils_prisma.get_db_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        cursor.execute("""
+            SELECT 
+                u.first_name,
+                u.full_name,
+                u.prn,
+                COALESCE(AVG(cm.marks), 0) as avg_marks,
+                COUNT(DISTINCT cm.subject_code) as subject_count
+            FROM users u
+            LEFT JOIN cie_marks cm ON u.id = cm.user_id
+            GROUP BY u.id, u.first_name, u.full_name, u.prn
+            HAVING COUNT(DISTINCT cm.subject_code) > 0
+            ORDER BY avg_marks DESC
+            LIMIT %s
+        """, (limit,))
+        
+        results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        leaderboard = []
+        for idx, row in enumerate(results):
+            # Calculate approximate SGPA (simplified)
+            avg_marks_float = float(row['avg_marks']) if row['avg_marks'] else 0
+            subject_count_int = int(row['subject_count']) if row['subject_count'] else 0
+            sgpa = (avg_marks_float / 10) if avg_marks_float > 0 else 0
+            
+            leaderboard.append({
+                "rank": idx + 1,
+                "username": row['first_name'],
+                "full_name": row['full_name'],
+                "sgpa": round(sgpa, 2),
+                "total_credits": subject_count_int * 4,  # Approximate
+                "avg_attendance": 0  # TODO: Calculate from attendance records
+            })
+        
+        return leaderboard
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/leaderboard/{subject_code}/{exam_type}")
-async def get_leaderboard(subject_code: str, exam_type: str, limit: int = 10):
+async def get_subject_leaderboard(subject_code: str, exam_type: str, limit: int = 10):
     """Get leaderboard for a specific subject and exam type"""
     leaderboard = db_utils.get_subject_leaderboard_pg(subject_code, exam_type, limit)
     

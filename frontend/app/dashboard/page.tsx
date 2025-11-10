@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import { fetchStudentData, calculateSGPA } from '@/lib/api'
 import Sidebar from '@/components/Sidebar'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts'
+
 import { RefreshCw, TrendingUp, BookOpen, Award, Calendar, AlertCircle } from 'lucide-react'
 
 export default function Dashboard() {
@@ -86,20 +86,6 @@ export default function Dashboard() {
     ? studentData.attendance.reduce((sum, r) => sum + r.percentage, 0) / studentData.attendance.length
     : 0
 
-  const chartData = studentData.attendance
-    .filter(r => r.subject !== 'CSM601')
-    .map(r => ({
-      subject: r.subject,
-      percentage: r.percentage,
-      color: r.percentage >= 85 ? '#10b981' : r.percentage >= 75 ? '#f59e0b' : '#ef4444'
-    }))
-
-  const gradeData = Object.entries(sgpaData.grade_distribution).map(([grade, count]) => ({
-    name: grade,
-    value: count,
-    color: grade === 'O' ? '#8b5cf6' : grade === 'A+' ? '#3b82f6' : grade === 'A' ? '#10b981' : '#f59e0b'
-  }))
-
   return (
     <div className="flex min-h-screen bg-gray-950">
       <Sidebar username={username} onLogout={handleLogout} />
@@ -161,57 +147,62 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Attendance Chart */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl">
-            <h2 className="text-xl font-bold text-white mb-6">📊 Attendance Overview</h2>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="subject" stroke="#9ca3af" />
-                  <YAxis domain={[0, 100]} stroke="#9ca3af" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Bar dataKey="percentage" radius={[8, 8, 0, 0]}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Grade Distribution */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl">
-            <h2 className="text-xl font-bold text-white mb-6">🏆 Grade Distribution</h2>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={gradeData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {gradeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+        {/* Attendance Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-6">📊 Attendance Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {studentData.attendance
+              .filter(r => r.subject !== 'CSM601')
+              .map((record) => {
+                const subjectName = record.subject_name || record.subject
+                const percentage = record.percentage
+                const status = percentage >= 85 ? 'excellent' : percentage >= 75 ? 'good' : 'low'
+                const bgColor = percentage >= 85 ? 'from-green-600 to-emerald-700' : 
+                               percentage >= 75 ? 'from-yellow-600 to-orange-600' : 
+                               'from-red-600 to-red-700'
+                
+                return (
+                  <div key={record.subject} className={`bg-gradient-to-br ${bgColor} rounded-xl p-5 shadow-xl`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-white text-lg mb-1">{subjectName}</h3>
+                        <p className="text-white/70 text-xs">{record.subject}</p>
+                      </div>
+                      <span className="bg-white/20 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {status.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <p className="text-5xl font-bold text-white">{percentage.toFixed(1)}%</p>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-white/90">
+                      <div className="flex justify-between">
+                        <span>Present:</span>
+                        <span className="font-bold">{record.present}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Absent:</span>
+                        <span className="font-bold">{record.absent}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total:</span>
+                        <span className="font-bold">{record.total}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-white/20">
+                      <div className="w-full bg-white/20 rounded-full h-2">
+                        <div
+                          className="bg-white h-2 rounded-full transition-all"
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
           </div>
         </div>
 
