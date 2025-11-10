@@ -8,11 +8,14 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:api": "python run_api.py",
+    "dev:streamlit": "python run_streamlit.py",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
-    "db:migrate": "python migrate_to_prisma.py"
+    "db:migrate": "python tests/migrate_to_prisma.py",
+    "db:test": "python tests/test_add_user.py"
   },
   "repository": {
     "type": "git",

@@ -1,252 +1,256 @@
 # Project Structure
 
-This document explains the organization of the Contineo Scraper API project.
-
-## 📁 Directory Layout
+## 📁 Organized Directory Layout
 
 ```
 contineo-scraper/
-├── api.py                      # FastAPI backend application
-├── analytics.py                # Analytics engine (performance, predictions)
-├── cgpa_calculator.py          # CGPA/SGPA calculation engine
-├── web_scraper.py              # Web scraping logic
-├── config.py                   # Configuration and subject mappings
-├── exam_max_marks.py           # Exam maximum marks configuration
-├── db_utils_neon.py            # Neon PostgreSQL utilities
-├── db_utils_prisma.py          # Prisma Postgres utilities
-├── migrate_to_prisma.py        # Data migration script
-├── requirements.txt            # Python dependencies
-├── package.json                # Node.js dependencies (Prisma)
-├── .env                        # Environment variables (not in repo)
-├── .gitignore                  # Git ignore rules
-├── Dockerfile                  # Docker container config
-├── docker-compose.yml          # Docker Compose config
-├── vercel.json                 # Vercel deployment config
-├── API_DOCUMENTATION.md        # Complete API reference
-├── DEPLOYMENT_GUIDE.md         # Deployment instructions
-├── PRISMA_SETUP.md             # Prisma setup guide
-├── README.md                   # Project overview
+├── src/                        # Core application code
+│   ├── __init__.py            # Package initialization
+│   ├── api.py                 # FastAPI backend
+│   ├── st_main.py             # Streamlit web app
+│   ├── analytics.py           # Analytics engine
+│   ├── cgpa_calculator.py     # CGPA/SGPA calculator
+│   ├── web_scraper.py         # Portal scraper
+│   ├── config.py              # Configuration
+│   ├── exam_max_marks.py      # Exam marks config
+│   ├── db_utils_neon.py       # Neon database utilities
+│   └── db_utils_prisma.py     # Prisma database utilities
+│
+├── tests/                      # Test and utility scripts
+│   ├── test_add_user.py       # Test user creation
+│   ├── register_to_prisma.py  # Register user script
+│   └── migrate_to_prisma.py   # Data migration script
+│
+├── scripts/                    # Utility scripts
+│   ├── manage_user.py         # User management CLI
+│   ├── register_user.py       # User registration CLI
+│   └── update_all.py          # Batch update script
+│
+├── deployment/                 # Deployment configurations
+│   ├── Dockerfile             # Docker container
+│   ├── docker-compose.yml     # Docker Compose
+│   ├── .dockerignore          # Docker ignore rules
+│   └── vercel.json            # Vercel deployment
+│
 ├── prisma/                     # Prisma ORM
-│   ├── schema.prisma           # Database schema
-│   └── migrations/             # Database migrations
+│   ├── schema.prisma          # Database schema
+│   └── migrations/            # Database migrations
+│
 ├── docs/                       # Documentation
-│   ├── MAX_MARKS_UPDATE.md
-│   ├── PROJECT_STRUCTURE.md    # This file
-│   └── README.md
-└── scripts/                    # Utility scripts
-    ├── manage_user.py          # User management CLI
-    ├── register_user.py        # User registration CLI
-    └── update_all.py           # Batch update script
+│   ├── README.md              # Documentation index
+│   ├── PROJECT_STRUCTURE.md   # Project structure
+│   └── MAX_MARKS_UPDATE.md    # Max marks docs
+│
+├── .github/                    # GitHub configuration
+│   └── workflows/             # CI/CD workflows
+│
+├── run_api.py                  # API entry point
+├── run_streamlit.py            # Streamlit entry point
+├── requirements.txt            # Python dependencies
+├── package.json                # Node.js dependencies
+├── prisma.config.ts            # Prisma configuration
+├── .env                        # Environment variables (not in repo)
+├── .env.example                # Environment template
+├── .gitignore                  # Git ignore rules
+│
+├── README.md                   # Project overview
+├── API_DOCUMENTATION.md        # API reference
+├── DEPLOYMENT_GUIDE.md         # Deployment guide
+├── PRISMA_SETUP.md             # Prisma setup
+├── PRISMA_USAGE_GUIDE.md       # Prisma usage
+├── PROJECT_SUMMARY.md          # Quick summary
+└── CLEANUP_COMPLETE.md         # Cleanup log
 ```
 
-## 🎯 Core Application Files
+## 🎯 Key Directories
 
-### Backend API
-- **api.py**: FastAPI application with all REST endpoints
-  - User management
-  - Data fetching
-  - CGPA/SGPA calculations
-  - Analytics endpoints
-  - Leaderboards
-
-### Analytics Engine
-- **analytics.py**: Advanced analytics features
-  - Subject performance dashboard
-  - Attendance-marks correlation
-  - Semester comparison
-  - Grade predictions
-
-### Calculation Engine
-- **cgpa_calculator.py**: CGPA/SGPA calculations
-  - Grade point conversion
-  - SGPA calculation
-  - CGPA calculation
-  - Target grade calculator
-
-### Data Scraping
-- **web_scraper.py**: Portal scraping logic
-  - Login automation
-  - Attendance extraction
-  - CIE marks extraction
-
-### Configuration
+### `/src` - Core Application
+All main application code lives here:
+- **api.py**: FastAPI REST API backend
+- **st_main.py**: Streamlit web interface
+- **analytics.py**: Advanced analytics engine
+- **cgpa_calculator.py**: Grade calculations
+- **web_scraper.py**: Portal data scraping
 - **config.py**: Application configuration
-  - Database connection strings
-  - Subject code mappings
-  - Credit hours configuration
-  - Portal URLs
+- **db_utils_*.py**: Database utilities
 
-- **exam_max_marks.py**: Exam marks configuration
-  - Maximum marks per exam type
-  - Subject-specific overrides
+### `/tests` - Testing & Utilities
+Test scripts and data migration tools:
+- **test_add_user.py**: Quick test for adding users
+- **register_to_prisma.py**: Register with validation
+- **migrate_to_prisma.py**: Migrate data between databases
 
-### Database Utilities
-- **db_utils_neon.py**: Neon PostgreSQL operations
-  - User CRUD operations
-  - Marks management
-  - Semester records
-  - Leaderboards
+### `/scripts` - CLI Utilities
+Command-line tools for management:
+- **manage_user.py**: User CRUD operations
+- **register_user.py**: User registration
+- **update_all.py**: Batch data updates
 
-- **db_utils_prisma.py**: Prisma Postgres operations
-  - Same interface as Neon utilities
-  - Works with Prisma database
+### `/deployment` - Deployment Files
+Everything needed for deployment:
+- **Dockerfile**: Container definition
+- **docker-compose.yml**: Multi-container setup
+- **vercel.json**: Vercel configuration
 
-- **migrate_to_prisma.py**: Data migration script
-  - Migrate from Neon to Prisma
-  - Handles all tables
-  - Maintains relationships
+### `/prisma` - Database Schema
+Prisma ORM files:
+- **schema.prisma**: Database models
+- **migrations/**: Migration history
+
+### `/docs` - Documentation
+Project documentation:
+- API references
+- Setup guides
+- Architecture docs
+
+## 🚀 Entry Points
+
+### Run API Backend
+```bash
+# Method 1: Using entry point
+python run_api.py
+
+# Method 2: Using uvicorn directly
+uvicorn src.api:app --reload
+
+# Method 3: Using npm script
+npm run dev:api
+```
+
+### Run Streamlit App
+```bash
+# Method 1: Using entry point
+python run_streamlit.py
+
+# Method 2: Using streamlit directly
+streamlit run src/st_main.py
+
+# Method 3: Using npm script
+npm run dev:streamlit
+```
+
+### Run Prisma Studio
+```bash
+npm run prisma:studio
+```
+
+## 📦 Import Structure
+
+Since all core files are in `/src`, imports are simple:
+
+```python
+# In any src/ file
+import config
+import web_scraper
+import db_utils_prisma as db_utils
+import cgpa_calculator
+import analytics
+```
+
+## 🔧 Configuration Files
+
+### Root Level
+- **.env**: Environment variables (not in repo)
+- **.env.example**: Environment template
+- **.gitignore**: Git ignore rules
+- **requirements.txt**: Python dependencies
+- **package.json**: Node.js dependencies
+- **prisma.config.ts**: Prisma configuration
+
+### Deployment
+- **deployment/Dockerfile**: Container image
+- **deployment/docker-compose.yml**: Container orchestration
+- **deployment/vercel.json**: Serverless deployment
 
 ## 📚 Documentation Files
 
-### Main Documentation
-- **README.md**: Project overview and quick start
-- **API_DOCUMENTATION.md**: Complete API reference with examples
-- **DEPLOYMENT_GUIDE.md**: Deployment instructions for various platforms
-- **PRISMA_SETUP.md**: Prisma ORM setup and usage guide
+### Main Docs (Root)
+- **README.md**: Project overview
+- **API_DOCUMENTATION.md**: Complete API reference
+- **DEPLOYMENT_GUIDE.md**: Deployment instructions
+- **PRISMA_SETUP.md**: Prisma setup guide
+- **PRISMA_USAGE_GUIDE.md**: How to use Prisma
+- **PROJECT_SUMMARY.md**: Quick project summary
+- **PROJECT_STRUCTURE.md**: This file
 
 ### Docs Folder
 - **docs/README.md**: Documentation index
-- **docs/PROJECT_STRUCTURE.md**: This file
-- **docs/MAX_MARKS_UPDATE.md**: Max marks calculation documentation
+- **docs/PROJECT_STRUCTURE.md**: Detailed structure
+- **docs/MAX_MARKS_UPDATE.md**: Max marks documentation
 
-## 🐳 Deployment Files
+## 🎨 Benefits of This Structure
 
-### Docker
-- **Dockerfile**: Container image definition
-- **docker-compose.yml**: Multi-container setup
-- **.dockerignore**: Files to exclude from Docker build
+### ✅ Clean Separation
+- Core code in `/src`
+- Tests in `/tests`
+- Scripts in `/scripts`
+- Deployment in `/deployment`
+- Docs in `/docs`
 
-### Cloud Platforms
-- **vercel.json**: Vercel deployment configuration
+### ✅ Easy Navigation
+- Clear purpose for each directory
+- Related files grouped together
+- Easy to find what you need
 
-## 🗄️ Database
+### ✅ Scalable
+- Easy to add new modules
+- Clear where new files go
+- Maintainable structure
 
-### Prisma
-- **prisma/schema.prisma**: Database schema definition
-- **prisma/migrations/**: Database migration history
-- **prisma.config.ts**: Prisma configuration
+### ✅ Professional
+- Industry-standard layout
+- Easy for new developers
+- Clear project organization
 
-### Tables
-- **users**: Student credentials and information
-- **cie_marks**: CIE marks for leaderboards
-- **semester_records**: Saved semester data for CGPA tracking
+## 🔄 Migration Notes
 
-## 🛠️ Utility Scripts
+Files were reorganized from flat structure to organized structure:
+- Core app files → `/src`
+- Test files → `/tests`
+- Deployment files → `/deployment`
+- Entry points created in root
 
-### User Management
-- **scripts/register_user.py**: CLI for registering new users
-- **scripts/manage_user.py**: CLI for managing existing users
+All imports still work because files in same directory reference each other directly.
 
-### Batch Operations
-- **scripts/update_all.py**: Update data for all registered users
+## 📝 Development Workflow
 
-## 📦 Dependencies
+1. **Start Development**:
+   ```bash
+   # Terminal 1: API
+   python run_api.py
+   
+   # Terminal 2: Streamlit
+   python run_streamlit.py
+   
+   # Terminal 3: Prisma Studio
+   npm run prisma:studio
+   ```
 
-### Python (requirements.txt)
-- fastapi: Web framework
-- uvicorn: ASGI server
-- psycopg2-binary: PostgreSQL adapter
-- beautifulsoup4: HTML parsing
-- requests: HTTP client
-- python-dotenv: Environment variables
-- pytz: Timezone handling
+2. **Make Changes**:
+   - Edit files in `/src`
+   - Both servers auto-reload
 
-### Node.js (package.json)
-- @prisma/client: Prisma ORM client
-- prisma: Prisma CLI
-- dotenv: Environment variables
+3. **Test**:
+   ```bash
+   python tests/test_add_user.py
+   ```
 
-## 🔄 Data Flow
+4. **Deploy**:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml up -d
+   ```
 
-1. **User Registration**
-   - User submits credentials via API
-   - Credentials validated by logging into portal
-   - User stored in database
+## 🎯 Quick Reference
 
-2. **Data Fetching**
-   - API receives username
-   - Retrieves credentials from database
-   - Logs into portal
-   - Scrapes attendance and marks
-   - Stores in database
-   - Returns to client
+| Task | Command |
+|------|---------|
+| Run API | `python run_api.py` |
+| Run Streamlit | `python run_streamlit.py` |
+| View Database | `npm run prisma:studio` |
+| Test User Creation | `python tests/test_add_user.py` |
+| Migrate Data | `python tests/migrate_to_prisma.py` |
+| Deploy Docker | `docker-compose -f deployment/docker-compose.yml up` |
 
-3. **Analytics**
-   - API receives username
-   - Retrieves data from database
-   - Performs calculations
-   - Returns insights
+---
 
-4. **CGPA Calculation**
-   - Retrieves marks from database
-   - Calculates grade points
-   - Computes SGPA/CGPA
-   - Saves semester records
-
-## 🎨 Architecture
-
-### Backend (Python)
-- FastAPI REST API
-- PostgreSQL database (Neon or Prisma)
-- Web scraping with BeautifulSoup
-- Analytics engine
-
-### Frontend (Next.js - Separate Repo)
-- Consumes REST API
-- Prisma Client for direct DB access
-- React components
-- Charts and visualizations
-
-## 🔐 Security
-
-### Environment Variables
-- Database credentials
-- API keys
-- Portal credentials (encrypted)
-
-### Best Practices
-- Password hashing (TODO)
-- API authentication (TODO)
-- Rate limiting (TODO)
-- Input validation
-- SQL injection prevention (parameterized queries)
-
-## 📊 Analytics Features
-
-### Performance Dashboard
-- Subject-wise metrics
-- Overall statistics
-- Weak/strong subject identification
-- Completion tracking
-
-### Correlation Analysis
-- Attendance vs marks correlation
-- Statistical insights
-- Subject-by-subject comparison
-
-### Semester Comparison
-- SGPA trends
-- Improvement tracking
-- Best semester identification
-
-### Grade Predictions
-- ESE requirements for target grades
-- Achievability analysis
-- Recommendations
-
-## 🚀 Deployment Options
-
-1. **Docker**: Containerized deployment
-2. **Vercel**: Serverless deployment
-3. **Railway**: Platform-as-a-Service
-4. **Render**: Web service deployment
-5. **AWS EC2**: Virtual machine deployment
-
-## 📝 Notes
-
-- All database operations use parameterized queries
-- Timezone-aware timestamps (UTC)
-- Graceful error handling
-- Comprehensive logging
-- API documentation with Swagger UI
-- Type hints throughout codebase
+**Clean, organized, and professional structure! 🎉**

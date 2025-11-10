@@ -16,9 +16,10 @@ if NEON_PASSWORDLESS_AUTH:
     NEON_CONNECTION_STRING = f"postgresql://{NEON_DB_HOST}?sslmode=require"
 else:
     if NEON_DB_PASSWORD is None:
-        import sys
-        sys.exit("Database password not configured and passwordless auth not enabled. Exiting.")
-    NEON_CONNECTION_STRING = f"postgresql://{PG_USER}:{NEON_DB_PASSWORD}@{NEON_DB_URI}/{PG_DBNAME}?sslmode=require"
+        print("⚠️ Warning: NEON_DB_PASSWORD not set. Neon database will not work.")
+        NEON_CONNECTION_STRING = None
+    else:
+        NEON_CONNECTION_STRING = f"postgresql://{PG_USER}:{NEON_DB_PASSWORD}@{NEON_DB_URI}/{PG_DBNAME}?sslmode=require"
 
 # MCP Server configuration
 MCP_SERVER_CONFIG = {

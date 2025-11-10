@@ -5,6 +5,9 @@ from streamlit_local_storage import LocalStorage
 from datetime import datetime
 import pytz
 
+# Load environment variables FIRST
+load_dotenv()
+
 # --- Local Storage Setup ---
 # This needs to be at the top level of the script
 try:
@@ -21,7 +24,7 @@ except Exception:
 # --- Imports ---
 import web_scraper
 import config
-import db_utils_neon as db_utils  # Changed from db_utils_sqlite to db_utils_neon
+import db_utils_dual as db_utils  # Using dual database (writes to both Neon and Prisma)
 import cgpa_calculator
 
 
@@ -30,8 +33,6 @@ def get_item(key):
 
 def set_item(key, value):
     _localS.setItem(key, value)
-
-load_dotenv()
 
 @st.cache_data(ttl=3600)
 def get_processed_student_data(prn, dob_day, dob_month, dob_year, full_name):

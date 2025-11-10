@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import web_scraper
-import db_utils_prisma as db_utils  # Changed from db_utils_neon to db_utils_prisma
+import db_utils_dual as db_utils  # Using dual database (writes to both Neon and Prisma)
 import cgpa_calculator
 import analytics
 import config
