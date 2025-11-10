@@ -1,0 +1,60 @@
+// Prisma Schema for Contineo Scraper
+// Matches existing PostgreSQL database structure
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  firstName  String   @unique @map("first_name")
+  fullName   String   @map("full_name")
+  prn        String   @unique
+  dobDay     String   @map("dob_day")
+  dobMonth   String   @map("dob_month")
+  dobYear    String   @map("dob_year")
+  
+  // Relations
+  cieMarks   CieMark[]
+  semesters  SemesterRecord[]
+  
+  @@map("users")
+}
+
+model CieMark {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  subjectCode String   @map("subject_code")
+  examType    String   @map("exam_type")
+  marks       Float?
+  scrapedAt   DateTime @map("scraped_at") @db.Timestamptz
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, subjectCode, examType])
+  @@map("cie_marks")
+}
+
+model SemesterRecord {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  semesterNumber  Int      @map("semester_number")
+  semesterName    String?  @map("semester_name")
+  sgpa            Float?
+  totalCredits    Int?     @map("total_credits")
+  academicYear    String?  @map("academic_year")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, semesterNumber])
+  @@map("semester_records")
+}

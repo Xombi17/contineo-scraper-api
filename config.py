@@ -2,15 +2,23 @@
 import os
 
 # --- Neon PostgreSQL Configuration (Active) ---
-NEON_DB_PASSWORD = os.environ.get("NEON_DB_PASSWORD")
-if NEON_DB_PASSWORD is None:
-    import sys
-    sys.exit("Database password not configured. Exiting.")
+NEON_PASSWORDLESS_AUTH = os.environ.get("NEON_PASSWORDLESS_AUTH", "false").lower() == "true"
+NEON_DB_HOST = os.environ.get("NEON_DB_HOST", "pg.neon.tech")
 
+# Legacy password-based auth (fallback)
+NEON_DB_PASSWORD = os.environ.get("NEON_DB_PASSWORD")
 NEON_DB_URI = os.environ.get("NEON_DB_URI", "ep-spring-voice-a1yre8if-pooler.ap-southeast-1.aws.neon.tech")
 PG_DBNAME = os.environ.get("PG_DBNAME", "neondb")
 PG_USER = os.environ.get("PG_USER", "neondb_owner")
-NEON_CONNECTION_STRING = f"postgresql://{PG_USER}:{NEON_DB_PASSWORD}@{NEON_DB_URI}/{PG_DBNAME}?sslmode=require"
+
+# Build connection string based on auth method
+if NEON_PASSWORDLESS_AUTH:
+    NEON_CONNECTION_STRING = f"postgresql://{NEON_DB_HOST}?sslmode=require"
+else:
+    if NEON_DB_PASSWORD is None:
+        import sys
+        sys.exit("Database password not configured and passwordless auth not enabled. Exiting.")
+    NEON_CONNECTION_STRING = f"postgresql://{PG_USER}:{NEON_DB_PASSWORD}@{NEON_DB_URI}/{PG_DBNAME}?sslmode=require"
 
 # MCP Server configuration
 MCP_SERVER_CONFIG = {

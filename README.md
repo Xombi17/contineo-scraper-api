@@ -1,55 +1,58 @@
-# Contineo Scraper with CGPA/SGPA Calculator
+# Contineo Scraper API
 
 ## Overview
-To log into Contineo, we need to input our PRN and DOB, which is annoying when you have to do it every time.
+A FastAPI backend for scraping student portal data, calculating CGPA/SGPA, and providing analytics. Designed to be consumed by a Next.js frontend.
 
-So here you basically register with your PRN and DOB once along with a username (that you will use to get your data).
+### Key Features
+- 🔐 User registration with credential validation
+- 📊 Automated data scraping (attendance & CIE marks)
+- 🎓 CGPA/SGPA calculation engine
+- 📈 Advanced analytics (performance dashboard, correlations, predictions)
+- 🏆 Subject-wise leaderboards
+- 🚀 RESTful API ready for Next.js integration
 
-After registering, you just have to enter the username and your PRN and DOB will automatically be filled in the actual Contineo site and the results will be displayed here (attendance and marks).
+## ✨ API Features
 
-## ✨ Features
-
-### 1. **Auto-Login System**
-- Register once with your PRN and Date of Birth
-- Quick access using just your username
-- Secure credential storage in Neon PostgreSQL database
+### 1. **User Management**
+- Register with credential validation
+- Secure storage in Neon PostgreSQL
+- User lookup by username
 
 ### 2. **Data Scraping**
-- **Attendance Tracking**: View attendance percentage for all subjects
-- **CIE Marks**: See all your Continuous Internal Evaluation scores
-- **Leaderboards**: Compare your performance with other students
+- Automated login to Contineo portal
+- Extract attendance percentages
+- Extract CIE marks (MSE, ISE1, ISE2, ESE)
+- Real-time data fetching
 
-### 3. **🎯 CGPA/SGPA Calculator** (NEW!)
+### 3. **CGPA/SGPA Calculator**
+- Calculate current semester SGPA
+- Track CGPA across multiple semesters
+- Target SGPA calculator with recommendations
+- Grade distribution analysis
 
-#### Current SGPA Calculator
-- Automatically calculates your current semester SGPA
-- Grade distribution visualization
-- Subject-wise breakdown with grade points
-- Save semester records for future reference
+### 4. **Analytics Engine** 🆕
+- **Subject Performance Dashboard**: Comprehensive metrics per subject
+- **Attendance-Marks Correlation**: Statistical analysis with insights
+- **Semester Comparison**: Trend analysis and improvement tracking
+- **Grade Predictions**: Predict final grades and ESE requirements
 
-#### CGPA Tracker
-- Track your cumulative GPA across all semesters
-- View semester-wise performance history
-- Overall performance summary
+### 5. **Leaderboards**
+- Subject-wise rankings
+- Exam-type specific leaderboards
+- Top performers tracking
 
-#### Target Calculator
-- Set a target SGPA you want to achieve
-- Get recommendations on what marks you need in remaining subjects
-- See which exams are pending and how much you need to score
-- Grade-wise breakdown for each subject
+### Grade Point System
+Percentage-based 10-point scale:
+- **O**: ≥85% → 10 GP
+- **A+**: ≥80% → 9 GP
+- **A**: ≥70% → 8 GP
+- **B+**: ≥60% → 7 GP
+- **B**: ≥50% → 6 GP
+- **C**: ≥45% → 5 GP
+- **P**: ≥40% → 4 GP
+- **F**: <40% → 0 GP
 
-### 4. **Grade Point System**
-Based on percentage-based 10-point grading scale:
-- **O (Outstanding)**: ≥85% → 10 GP
-- **A+ (Excellent)**: ≥80% → 9 GP
-- **A (Very Good)**: ≥70% → 8 GP
-- **B+ (Good)**: ≥60% → 7 GP
-- **B (Above Average)**: ≥50% → 6 GP
-- **C (Average)**: ≥45% → 5 GP
-- **P (Pass)**: ≥40% → 4 GP
-- **F (Fail)**: <40% → 0 GP
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Installation
 ```bash
@@ -61,34 +64,43 @@ cd contineo-scraper
 pip install -r requirements.txt
 
 # Set up environment variables
-# Create a .env file with your database credentials
+cp .env.example .env
+# Edit .env with your Neon credentials
 ```
 
 ### Environment Variables
-Create a `.env` file in the root directory with the following variables:
+Create a `.env` file:
 ```env
-NEON_DB_PASSWORD=your_neon_db_password
-NEON_DB_URI=your_neon_db_uri
-PG_DBNAME=your_database_name
-PG_USER=your_database_user
+NEON_DB_PASSWORD=your_password
+NEON_DB_URI=ep-xxxxx.region.aws.neon.tech
+PG_DBNAME=neondb
+PG_USER=neondb_owner
+NEON_PASSWORDLESS_AUTH=false
 ```
 
-### Running the App
+### Running the API
 
-#### Streamlit Web Interface (Recommended)
+#### Development
 ```bash
-streamlit run st_main.py
+uvicorn api:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Command Line Interface
+#### Production (Docker)
 ```bash
-python main.py
+docker-compose up -d
 ```
 
-#### Batch Update (Update all students)
+#### Production (Manual)
 ```bash
-python scripts/update_all.py
+uvicorn api:app --host 0.0.0.0 --port 8000 --workers 4
 ```
+
+### API Documentation
+Once running, visit:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+Or see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for detailed endpoint docs.
 
 ## 📊 How to Use the CGPA Calculator
 

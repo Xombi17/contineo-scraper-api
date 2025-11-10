@@ -12,6 +12,10 @@ from typing import Dict, List, Optional, Any
 import json
 
 # Database configuration from environment variables
+NEON_PASSWORDLESS_AUTH = os.environ.get("NEON_PASSWORDLESS_AUTH", "false").lower() == "true"
+NEON_DB_HOST = os.environ.get("NEON_DB_HOST", "pg.neon.tech")
+
+# Legacy password-based auth (fallback)
 NEON_DB_PASSWORD = os.environ.get("NEON_DB_PASSWORD")
 NEON_DB_URI = os.environ.get("NEON_DB_URI", "ep-spring-voice-a1yre8if-pooler.ap-southeast-1.aws.neon.tech")
 PG_DBNAME = os.environ.get("PG_DBNAME", "neondb")
@@ -32,8 +36,17 @@ DB_NAME_FOR_MESSAGES = "Neon PostgreSQL (Cloud Database)"
 def get_db_connection():
     """Establishes a connection to the Neon PostgreSQL database."""
     try:
-        connection_string = f"postgresql://{PG_USER}:{NEON_DB_PASSWORD}@{NEON_DB_URI}/{PG_DBNAME}?sslmode=require"
-        conn = psycopg2.connect(connection_string, cursor_factory=RealDictCursor)
+        if NEON_PASSWORDLESS_AUTH:
+            # Use passwordless authentication via pg.neon.tech
+            connection_string = f"postgresql://{NEON_DB_HOST}?sslmode=require"
+            conn = psycopg2.connect(connection_string, cursor_factory=RealDictCursor)
+        else:
+            # Use traditional password-based authentication
+            if not NEON_DB_PASSWORD:
+                print("Error: NEON_DB_PASSWORD not set and passwordless auth not enabled")
+                return None
+            connection_string = f"postgresql://{PG_USER}:{NEON_DB_PASSWORD}@{NEON_DB_URI}/{PG_DBNAME}?sslmode=require"
+            conn = psycopg2.connect(connection_string, cursor_factory=RealDictCursor)
         return conn
     except psycopg2.Error as e:
         print(f"Error connecting to {DB_NAME_FOR_MESSAGES} database: {e}")
