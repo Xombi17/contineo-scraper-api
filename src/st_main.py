@@ -64,7 +64,20 @@ if 'db_initialized' not in st.session_state:
     st.session_state.db_initialized = True
 
 # --- Page Configuration ---
-st.set_page_config(page_title="Student Portal Viewer", layout="wide")
+st.set_page_config(
+    page_title="Student Portal Viewer", 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Hide theme switcher to keep dark mode only
+st.markdown("""
+<style>
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # --- App Title ---
 st.header("🎓 Student Portal Data Viewer")
