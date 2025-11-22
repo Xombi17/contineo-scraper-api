@@ -13,11 +13,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import web_scraper
-import db_utils_dual as db_utils  # Using dual database (writes to both Neon and Prisma)
+from src import web_scraper  # ✅ Correct
+from src import db_utils as db_utils     # ✅ Correct
+from src import config       # ✅ Correct
+from src import analytics
+
+ # Using dual database (writes to both Neon and Prisma)
 import cgpa_calculator
-import analytics
-import config
+
+
 
 app = FastAPI(
     title="Contineo Scraper API",
