@@ -32,12 +32,16 @@ app = FastAPI(
 # CORS middleware for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],  # Add your Next.js URLs
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://calc-pointer.vercel.app",  # ✅ Add your Vercel URL
+        "https://*.vercel.app"  # ✅ Allow all Vercel preview deployments
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # Pydantic models
 class UserRegistration(BaseModel):
     username: str
