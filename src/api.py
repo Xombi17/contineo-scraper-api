@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from src import web_scraper  # ✅ Correct
-from src import db_utils as db_utils     # ✅ Correct
+from src import db_utils_neon as db_utils  # ✅ Correct
 from src import config       # ✅ Correct
 from src import analytics
 
