@@ -25,7 +25,7 @@ except Exception:
 import web_scraper
 from src import config
 import db_utils_dual as db_utils  # Using dual database (writes to both Neon and Prisma)
-import cgpa_calculator
+from . import cgpa_calculator
 
 
 def get_item(key):

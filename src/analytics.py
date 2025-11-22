@@ -4,7 +4,7 @@ Provides insights, correlations, and predictions
 """
 
 from src import config
-import cgpa_calculator
+from . import cgpa_calculator
 from typing import Dict, List, Optional, Tuple
 import statistics
 
