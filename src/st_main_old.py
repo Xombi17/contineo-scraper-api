@@ -23,7 +23,7 @@ except Exception:
 
 # --- Imports ---
 import web_scraper
-import config
+from src import config
 import db_utils_dual as db_utils  # Using dual database (writes to both Neon and Prisma)
 import cgpa_calculator
 

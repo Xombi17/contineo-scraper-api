@@ -5,7 +5,7 @@ Handles grade point calculations, CGPA/SGPA computation, and target grade predic
 Uses percentage-based pointer system.
 """
 
-import config
+from src import config
 import exam_max_marks
 
 # Percentage-based Grade Point System (10-point scale)

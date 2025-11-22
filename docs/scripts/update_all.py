@@ -10,7 +10,7 @@ load_dotenv()
 
 import db_utils_neon as db_utils  # Changed from db_utils_sqlite to db_utils_neon
 import web_scraper
-import config
+from src import config
 
 # --- Configuration ---
 # Be a good internet citizen. Wait this many seconds between scraping each student.

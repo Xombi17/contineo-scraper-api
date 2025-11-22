@@ -3,7 +3,7 @@ Analytics Module for Student Performance Analysis
 Provides insights, correlations, and predictions
 """
 
-import config
+from src import config
 import cgpa_calculator
 from typing import Dict, List, Optional, Tuple
 import statistics

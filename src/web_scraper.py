@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from urllib.parse import urljoin # Moved import here
-import config # Import your config file
+from src import config # Import your config file
 
 def login_and_get_welcome_page(prn, dob_day, dob_month_val, dob_year, user_full_name_for_check):
     session = requests.Session()

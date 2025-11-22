@@ -140,7 +140,7 @@ Since all core files are in `/src`, imports are simple:
 
 ```python
 # In any src/ file
-import config
+from src import config
 import web_scraper
 import db_utils_prisma as db_utils
 import cgpa_calculator
