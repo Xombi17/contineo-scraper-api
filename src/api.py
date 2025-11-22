@@ -19,7 +19,7 @@ from src import config       # ✅ Correct
 from src import analytics
 
  # Using dual database (writes to both Neon and Prisma)
-import cgpa_calculator
+from src import cgpa_calculator
 
 
 
