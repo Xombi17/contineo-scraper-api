@@ -88,6 +88,7 @@ SUBJECT_CODE_TO_NAME_MAP = {
     "25PCC12CE07" : "Object Oriented Programming",
     "25VEC12CE01" : "Human Values And Professional Ethics",
     "25AEC12CE021" : "Sanskrit",
+    "25AEC12CE023": "Kannada",
     "25MDMBM1" : "Financial Accounting",
     "25OE13CE12" : "Financial Planning Taxation And Investment",
     "25MDMBM2" : "Economics For Businees"
